@@ -1,8 +1,9 @@
-package sparkEncoders
-
+package utils
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{ BeforeAndAfterAll, Suite }
 
+/**
+ */
 trait TestSparkSession extends BeforeAndAfterAll { this: Suite =>
 
   def appName           = "Test"

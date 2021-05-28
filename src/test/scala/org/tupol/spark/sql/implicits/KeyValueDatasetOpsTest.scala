@@ -1,13 +1,13 @@
-package sparkEncoders
+package org.tupol.spark.sql.implicits
 
 import org.apache.spark.sql.Dataset
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import utils.TestSparkSession
 
 class KeyValueDatasetOpsTest extends AnyWordSpec with TestSparkSession with Matchers {
 
   import spark.implicits._
-  import problem._
 
   "mapValues" should {
     "map only the values and not the keys" in {

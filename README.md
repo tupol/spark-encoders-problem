@@ -4,9 +4,46 @@ This problem was discovered and reproduced so far only in the Databricks cluster
 
 Databricks runtime version: 7.3 LTS (includes Apache Spark 3.0.1, Scala 2.12)
 
+The problem itself is based on the code presented in `sparkEncoders.problem`. 
+
+
 ## Build
 
 `sbt clean publishLocal`
+
+## Sample Test Job
+
+`spark-submit --class sparkEncoders.TestProblemApp --master local target/scala-2.12/spark-encoders-problem_2.12-0.0.1.jar`
+
+While running locally it works and prints the expected output to the console:
+
+```
++---+----+
+|_1 |_2  |
++---+----+
+|1  |test|
+|2  |test|
++---+----+
+```
+
+In the cluster we get:
+
+```
+21/05/28 09:32:03 ERROR Uncaught throwable from user code: java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.encoders.package$.encoderFor(Lorg/apache/spark/sql/Encoder;)Lorg/apache/spark/sql/catalyst/encoders/ExpressionEncoder;
+	at sparkEncoders.problem$DatasetOps.withColumnDataset(problem.scala:26)
+	at sparkEncoders.TestProblemApp$.delayedEndpoint$sparkEncoders$TestProblemApp$1(TestProblemApp.scala:19)
+	at sparkEncoders.TestProblemApp$delayedInit$body.apply(TestProblemApp.scala:7)
+	at scala.Function0.apply$mcV$sp(Function0.scala:39)
+	at scala.Function0.apply$mcV$sp$(Function0.scala:39)
+	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:17)
+	at scala.App.$anonfun$main$1$adapted(App.scala:80)
+	at scala.collection.immutable.List.foreach(List.scala:392)
+	at scala.App.main(App.scala:80)
+	at scala.App.main$(App.scala:78)
+	at sparkEncoders.TestProblemApp$.main(TestProblemApp.scala:7)
+	at lineeb070d7fa050490dbd5db015f88c82d225.$read$$iw$$iw$$iw$$iw$$iw$$iw.<init>(command--1:1)
+	...
+```
 
 
 ## Sample Notebook Code

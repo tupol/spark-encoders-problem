@@ -1,18 +1,11 @@
-package sparkEncoders
-
-import org.apache.spark.sql.catalyst.ScalaReflection
+package org.tupol.spark.sql
+import org.apache.spark.sql.{ Column, Dataset, Encoder }
 import org.apache.spark.sql.catalyst.encoders.{ encoderFor, ExpressionEncoder }
 import org.apache.spark.sql.functions.{ col, struct }
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{ Column, Dataset, Encoder }
 
 import java.util.UUID
-import scala.reflect.runtime.universe.TypeTag
 
-/** Various Spark utility decorators */
-object problem {
-
-  def schemaFor[T: TypeTag]: StructType = ScalaReflection.schemaFor[T].dataType.asInstanceOf[StructType]
+package object implicits {
 
   implicit class DatasetOps[T: Encoder](val dataset: Dataset[T]) extends Serializable {
 
@@ -34,6 +27,21 @@ object problem {
         .withColumn(tempColName, column)
         .select(tuple1 as "_1", col(tempColName) as "_2")
         .as[(T, U)]
+    }
+  }
+
+  implicit class KeyValueDatasetOps[K: Encoder, V: Encoder](val dataset: Dataset[(K, V)]) extends Serializable {
+
+    /** Map values of a Dataset containing a Tuple2 */
+    def mapValues[U: Encoder](f: V => U): Dataset[(K, U)] = {
+      implicit val tuple2Encoder: Encoder[(K, U)] = ExpressionEncoder.tuple(encoderFor[K], encoderFor[U])
+      dataset.map { case (k, v) => (k, f(v)) }
+    }
+
+    /** FlatMap values of a Dataset containing a Tuple2 */
+    def flatMapValues[U: Encoder](f: V => TraversableOnce[U]): Dataset[(K, U)] = {
+      implicit val tuple2Encoder: Encoder[(K, U)] = ExpressionEncoder.tuple(encoderFor[K], encoderFor[U])
+      dataset.flatMap { case (k, v) => f(v).map((k, _)) }
     }
   }
 

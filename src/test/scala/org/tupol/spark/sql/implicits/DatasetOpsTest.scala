@@ -1,4 +1,4 @@
-package sparkEncoders
+package org.tupol.spark.sql.implicits
 
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{ AnalysisException, Dataset }
@@ -9,7 +9,6 @@ import utils.TestSparkSession
 class DatasetOpsTest extends AnyWordSpec with TestSparkSession with Matchers {
 
   import spark.implicits._
-  import problem._
 
   "withTupledColumn" should {
     "return a tuple of the primitive input and the column with a simple dataset of 1 value" in {
